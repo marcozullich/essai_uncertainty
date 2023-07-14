@@ -22,8 +22,8 @@ class SingleNetworkPointwiseBNN(nn.Module):
     if self.training:
       return self.module(data)
     new_shape = [self.n_eval, *[1]*len(data.shape)]
-    data_rep = data.unsqueeze(0)
-    return self.module(data).squeeze()
+    data_rep = data.repeat(new_shape)
+    return self.module(data_rep).squeeze()
 
 class BaseVariationalLayer(nn.Module):
   def __init__(self, parent_module):
