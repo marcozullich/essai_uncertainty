@@ -44,3 +44,24 @@ def train_SGD(
 
     if (epoch + 1) % print_each_epochs == 0:
       print(f"Iteration {epoch+1} - last ite loss {loss}")
+      
+def test(model, dataloader, loss_fn, device=None):
+  if device is None:
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+  model.to(device)
+  model.eval()
+  with torch.no_grad():
+    accumulated_loss = 0.0
+    correct_items = 0
+    n_data = 0
+
+    for data, target in dataloader:
+      data = data.to(device)
+      target = target.to(device)
+      y_pred = model(data)
+      loss = loss_fn(y_pred, target)
+      accumulated_loss += loss.item()
+      correct_items += (y_pred.max(1).indices == target).sum()
+      n_data += len(data)
+
+    print(f"TEST - loss {accumulated_loss/n_data} - accuracy {correct_items/n_data}")
