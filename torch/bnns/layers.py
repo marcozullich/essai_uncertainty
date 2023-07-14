@@ -8,7 +8,7 @@ class MCDropout(nn.Dropout):
   In this way, simply calling .train(False) on Modules making use of MCDropout
   or .eval() will not trigger the eval behaviour of Dropout
   '''
-  def train(train=True):
+  def train(self, train=True):
     self.training = True
 
 class LinearMCDropConnect(nn.Linear):
