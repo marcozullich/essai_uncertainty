@@ -39,9 +39,6 @@ def train_SGD(
       optimizer.step()
       optimizer.zero_grad()
 
-      avg_loss += loss.item()
-      num_datapoints += data.shape[0]
-
     if (epoch + 1) % print_each_epochs == 0:
       print(f"Iteration {epoch+1} - last ite loss {loss}")
       
