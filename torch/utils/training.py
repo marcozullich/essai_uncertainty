@@ -45,7 +45,7 @@ def train_SGD(
       optimizer.zero_grad()
 
     if (epoch + 1) % print_each_epochs == 0:
-      print(f"Iteration {epoch+1} - last ite loss {loss}")
+      print(f"Epoch {epoch+1} - last ite loss {loss}")
       
 def test(model, dataloader, loss_fn, device=None):
   if device is None:

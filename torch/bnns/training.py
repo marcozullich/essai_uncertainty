@@ -11,7 +11,7 @@ def test_bnn(model, dataloader, metric=M.accuracy_ensemble, device=None):
     model.eval()
     with torch.no_grad():
         metric_tracker = torch.zeros([len(dataloader)])
-        nums = torch.zeros_like(metrics_tracker)
+        nums = torch.zeros_like(metric_tracker)
         for data, target in dataloader:
             data = data.to(device)
             target = target.to(device)
