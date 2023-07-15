@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import matplotlib.transforms as mtransforms
 
+from sklearn import metrics as M
+import pandas as pd
+
 def accuracy_prob_models(predictions, ground_truth, preds_as_logits=False, axis_classes=2):
   if preds_as_logits:
     predictions = softmax(predictions, axis_classes)
@@ -64,3 +67,70 @@ def reliability_plot(reliability_vector, bins_cutoffs, clear_nans=True):
   ax.add_line(line)
   plt.plot(x_axis, reliability_vector)
   plt.show()
+  
+  
+def ood_roc_curve(
+    ood_label:np.ndarray,
+    confidence_vector:np.ndarray
+):
+    false_pos_rate, true_pos_rate, thresh = M.roc_curve(
+        ood_label,
+        confidence_vector
+    )
+    roc_auc = M.auc(false_pos_rate, true_pos_rate)
+    display = M.RocCurveDisplay(fpr=false_pos_rate, tpr=true_pos_rate, roc_auc=roc_auc)
+    display.plot()
+    
+    
+    
+def ood_evaluation(
+    confidence_vector_id:np.ndarray,
+    confidence_vector_ood:np.ndarray,
+    min_threshold:float=0.0,
+    max_threshold:float=1.0,
+    threshold_step:float=0.01
+) -> pd.DataFrame:
+    len_id = len(confidence_vector_id)
+    confidence_vector = np.concatenate([
+        confidence_vector_id, confidence_vector_ood
+    ])
+    ood_label = np.concatenate([
+        np.zeros_like(confidence_vector_id),
+        np.ones_like(confidence_vector_ood)
+    ])
+    
+    
+    threshold = []
+    accuracy = []
+    accuracy_mnist = []
+    accuracy_fmnist = []
+    f1_score = []
+    
+
+    steps = int((max_threshold - min_threshold)/threshold_step) + 1
+    for thresh in np.linspace(min_threshold, max_threshold, steps+1):
+        ood_detection_pred = np.where(confidence_vector<thresh, 1, 0)
+        # ood_detection_mnist = np.where(confidence_mnist<thresh, 1, 0)
+        # ood_detection_fmnist = np.where(confidence_fmnist<thresh, 1, 0)
+        # ood_detection_pred = np.concatenate([ood_detection_mnist, ood_detection_fmnist])
+
+        acc = M.accuracy_score(ood_label, ood_detection_pred)
+        acc_id = M.accuracy_score(ood_label[:len_id], ood_detection_pred[:len_id])
+        acc_ood = M.accuracy_score(ood_label[len_id:], ood_detection_pred[len_id:])
+        f1 = M.f1_score(ood_label, ood_detection_pred)
+
+        threshold.append(thresh)
+        accuracy.append(acc)
+        accuracy_id.append(acc_id)
+        accuracy_ood.append(acc_ood)
+        f1_score.append(f1)
+
+    confidence_scores = pd.DataFrame({
+            "threshold": threshold,
+            "accuracy": accuracy,
+            "accuracy_ID": accuracy_id,
+            "accuracy_OOD": accuracy_ood,
+            "f1_score": f1_score
+        })
+
+    return confidence_scores
