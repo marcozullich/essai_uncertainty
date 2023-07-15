@@ -1,5 +1,5 @@
 import torch
-import ...metrics as M
+import essai_uncertainty.metrics as M
 from ..utils import training as T
 
     
