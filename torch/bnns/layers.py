@@ -158,3 +158,12 @@ class LinearFlipout(BaseVariationalLayer):
 
     return y_pred_final
 
+class AdaptiveFlatten(nn.Module):
+    def __init__(self, dims_to_flatten=3):
+        super().__init__()
+        self.dims = 3
+    
+    def forward(self, data):
+        return torch.flatten(data, start_dim=-self.dims)
+            
+            

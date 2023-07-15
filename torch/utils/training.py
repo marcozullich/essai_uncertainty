@@ -1,5 +1,10 @@
 import torch
 
+def get_device(device):
+    if device is not None:
+        return device
+    return "cuda:0" if torch.cuda.is_available() else "cpu"
+
 def train_full_batch_GD(
     model:torch.nn.Module,
     data:torch.Tensor,
