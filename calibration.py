@@ -102,8 +102,8 @@ def ood_evaluation(
     
     threshold = []
     accuracy = []
-    accuracy_mnist = []
-    accuracy_fmnist = []
+    accuracy_id = []
+    accuracy_ood = []
     f1_score = []
     
 
