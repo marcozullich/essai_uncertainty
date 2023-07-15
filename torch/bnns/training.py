@@ -1,29 +1,39 @@
 import torch
 import essai_uncertainty.metrics as M
-from ..utils import training as T
+from ..utils import training as T  
 
-    
-    
-
-def test_bnn(model, dataloader, metric=M.accuracy_ensemble, device=None):
+def test_bnn(model, dataloader, metric="accuracy", device=None, get_confidence=False):
     device = T.get_device(device)
     model.to(device)
     model.eval()
+    confidence_tensors = []
+    metric_tracker = 0.0
+    num_data = 0
+    
     with torch.no_grad():
-        metric_tracker = torch.zeros([len(dataloader)])
-        nums = torch.zeros_like(metric_tracker)
+        
         for data, target in dataloader:
             data = data.to(device)
             target = target.to(device)
             y_pred = model(data)
             
-            mtr = metric(y_pred.detach().numpy(), target.numpy())
-            metric_tracker.append(mtr)
-            nums.append(len(data))
-        
-    metric_tracker *= nums
+            if metric == "accuracy":
+                confidence, pred_class = y_pred.mean(0).softmax(1).max(1)
+                if get_confidence:
+                    confidence_tensors.append(confidence)
+                metric_tracker += (pred_class == target).sum()
+                num_data += len(data)
+            else:
+                raise NotImplementedError("Not implemented yet")
             
-    print(f"Bayesian test - Metric {metric_tracker.mean(metric_tracker.sum() / nums.sum())}")
+        
+    if metric == "accuracy":
+        metric_tracker /= num_data
+            
+    print(f"Bayesian test - {metric} {metric_tracker}")
+    
+    if get_confidence:
+        return torch.cat(confidence_tensors)
         
             
             
