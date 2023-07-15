@@ -17,7 +17,7 @@ def test_bnn(model, dataloader, metric=M.accuracy_ensemble, device=None):
             target = target.to(device)
             y_pred = model(data)
             
-            mtr = metric(y_pred.detach(), target)
+            mtr = metric(y_pred.detach().numpy(), target.numpy())
             metric_tracker.append(mtr)
             nums.append(len(data))
         
